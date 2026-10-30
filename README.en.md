@@ -35,7 +35,7 @@ chatgpt-show-other-devices --status
 
 Look for `"enabled": true`. An unsupported app layout leaves the application unchanged; `last_result` explains why the patch was skipped. The companion package can therefore be installed even when its current app build is unsupported.
 
-If the entry appears but authorization fails, see [authorization and TPM troubleshooting](docs/authorization-troubleshooting.md). A user-access failure for `/dev/tpmrm0` was observed on the tested build. A phone QR prompt on the authorization website may be passkey verification; it does not make the phone the controlling device.
+If the entry appears but authorization fails, see [authorization and TPM troubleshooting](docs/authorization-troubleshooting.md). This includes a separate, reversible TPM access tool and recovery steps for `State mismatch` or an expired enrollment challenge. A phone QR prompt on the authorization website may be passkey verification; it does not make the phone the controlling device.
 
 ## After an app update
 
@@ -86,7 +86,7 @@ python3 scripts/build_deb.py
 python3 scripts/verify_package.py dist/chatgpt-show-other-devices_1.0.1_all.deb
 ```
 
-The tests generate small synthetic ASAR fixtures; the official application is not required. They cover patching, repeated execution, changed asset names, update reapplication, exact restoration, backup retention, and refusing ambiguous or changed layouts.
+The tests generate small synthetic ASAR fixtures; the official application is not required. They cover patching, repeated execution, changed asset names, update reapplication, exact restoration, backup retention, and refusing ambiguous or changed layouts. Optional TPM-tool tests use real ACLs on temporary ordinary files and require the `acl` package; they do not access TPM hardware.
 
 GitHub CI also installs the helper in a clean runner, activates its package trigger, and purges it. See [CONTRIBUTING.md](CONTRIBUTING.md) for reporting compatibility results.
 

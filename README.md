@@ -35,7 +35,7 @@ chatgpt-show-other-devices --status
 
 `"enabled": true` 表示补丁已经生效。若新版不兼容，客户端会保持原样，`last_result` 会记录跳过原因；辅助包安装成功不等于一定匹配当前客户端。
 
-若入口出现后仍然“远程控制授权失败”，请看[授权与 TPM 排查](docs/authorization-troubleshooting.md)。已观察到当前用户无法访问 `/dev/tpmrm0` 导致授权失败的情况。网页上的手机扫码也可能只是通行密钥身份验证，并不表示只能由手机控制电脑。
+若入口出现后仍然“远程控制授权失败”，请看[授权与 TPM 排查](docs/authorization-troubleshooting.md)，其中包含独立、可撤销的 TPM 权限持久化工具，以及 `State mismatch`、授权挑战过期的处理步骤。网页上的手机扫码也可能只是通行密钥身份验证，并不表示只能由手机控制电脑。
 
 ## 更新后的行为
 
@@ -84,6 +84,6 @@ python3 scripts/build_deb.py
 python3 scripts/verify_package.py dist/chatgpt-show-other-devices_1.0.1_all.deb
 ```
 
-测试使用生成的 ASAR 样例文件，不需要官方客户端。CI 额外验证 Debian 包的安装、触发器调用及卸载。兼容性反馈请见[贡献指南](CONTRIBUTING.md)。
+测试使用生成的 ASAR 样例文件，不需要官方客户端。可选 TPM 工具的测试使用临时普通文件的真实 ACL，需要 `acl` 包，不访问 TPM 硬件。CI 额外验证 Debian 包的安装、触发器调用及卸载。兼容性反馈请见[贡献指南](CONTRIBUTING.md)。
 
 本项目原创代码采用 [MIT](LICENSE) 许可证。与 OpenAI 无关联，也未获其背书。

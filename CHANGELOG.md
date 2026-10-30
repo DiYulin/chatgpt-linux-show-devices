@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Add separate, opt-in TPM access tooling with a persistent per-user rule, guarded restoration, and temporary-file ACL tests; the default Debian package does not install it.
+- Document passkey verification, expired enrollment challenges, and fresh-request recovery for `State mismatch`.
+- Use Chinese as the default README and keep an independent English version.
+
 ## 1.0.1
 
 - First public source release with English and Simplified Chinese documentation.
