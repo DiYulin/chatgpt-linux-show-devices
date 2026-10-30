@@ -1,0 +1,6 @@
+#!/bin/sh
+set -eu
+case "$1" in
+    purge) rm -rf -- /var/lib/chatgpt-show-other-devices ;;
+esac
+exit 0

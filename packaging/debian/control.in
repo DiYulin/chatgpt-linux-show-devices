@@ -1,0 +1,12 @@
+Package: chatgpt-show-other-devices
+Version: {version}
+Section: utils
+Priority: optional
+Architecture: all
+Depends: python3 (>= 3.10)
+Maintainer: DiYulin
+Homepage: https://github.com/DiYulin/chatgpt-linux-show-devices
+Description: Preserve the requested ChatGPT Linux device-control UI preference
+ Reapplies a guarded UI-only patch after compatible ChatGPT package updates.
+ Preserves original archives for restoration and leaves authentication,
+ pairing, and remote-access authorization unchanged.

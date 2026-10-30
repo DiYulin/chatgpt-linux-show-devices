@@ -1,0 +1,10 @@
+#!/bin/sh
+set -eu
+case "$1" in
+    configure|triggered)
+        if ! /usr/bin/python3 -I /usr/lib/chatgpt-show-other-devices/repair.py --ensure --quiet; then
+            echo "ChatGPT device-control UI patch skipped: see chatgpt-show-other-devices --status." >&2
+        fi
+        ;;
+esac
+exit 0

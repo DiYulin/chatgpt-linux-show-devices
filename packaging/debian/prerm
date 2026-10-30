@@ -1,0 +1,8 @@
+#!/bin/sh
+set -eu
+case "$1" in
+    remove|deconfigure)
+        /usr/bin/python3 -I /usr/lib/chatgpt-show-other-devices/repair.py --restore --quiet || true
+        ;;
+esac
+exit 0

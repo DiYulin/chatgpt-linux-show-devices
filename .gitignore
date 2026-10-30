@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+build/
+dist/
+*.deb
+*.asar
+*.asar.*
+*.log
+auth.json
+.env
+.env.*
+.venv/
