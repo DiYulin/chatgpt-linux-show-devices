@@ -1,82 +1,80 @@
-# ChatGPT Linux: Show Other Devices
+# ChatGPT Linux：显示“控制其他设备”
 
-[简体中文](README.zh-CN.md)
+[English](README.en.md)
 
-A small, reversible companion package that keeps **Settings → Connections → Control other devices** visible in the official ChatGPT/Codex Linux desktop app.
+给官方 ChatGPT/Codex Linux 桌面客户端安装一个小型、可回滚的补丁，恢复 **设置 → 连接 → 控制其他设备** 入口，并在兼容的客户端更新后自动重新应用。
 
-The original app remains installed from its normal package source. This project changes one local UI visibility expression, preserves a verified original backup, and uses a Debian package trigger to reapply the change after compatible app updates.
+保留官方客户端及其正常更新来源。安装包仅包含本项目的修补代码，不包含 OpenAI 客户端、`app.asar`、账号数据或原文件备份。
 
-**Experimental and unofficial.** Tested on desktop app `26.1027.30824`. Later builds are checked structurally rather than assumed compatible. Showing the entry does not establish that every remote-control workflow works on every Linux system.
+**实验性、非官方项目。** 已在客户端 `26.1027.30824` 上确认入口恢复。后续版本会进行结构校验，不能保证所有新版都兼容，也不能仅凭显示入口就保证所有远程操作都能成功。
 
-## Why it exists
+## 问题来源
 
-On an affected Linux installation, other devices could connect to the computer while its own **Control other devices** tab was hidden. Updating the app did not restore the tab. Investigation found a separate UI gate, `782640499`, whose value was inverted to decide whether to show that tab. On the investigated account and app version, the service returned a hiding value for Linux and a showing value for Windows.
+在最初排查的设备上，Windows 能连接 Linux，但 Linux 缺少“控制其他设备”标签，更新客户端后仍然如此。排查发现，客户端单独读取一个控制入口隐藏的开关 `782640499`。在当时测试的同一账号和版本下，服务端针对 Linux 和 Windows 返回了不同的隐藏值。
 
-This is a report about that tested configuration, not a claim about all accounts or all future releases. The local patch was applied successfully and the user confirmed that the missing entry returned.
+本项目只修改本地界面显示判断；账号授权、MFA、设备配对和服务端权限仍然按原流程执行。上述现象来自实际测试，不代表所有账号或后续版本都采用相同配置。
 
-## Install
+## 安装
 
-Requirements: a Debian/Ubuntu-style system using `apt`/`dpkg`, Python 3.10 or newer, administrator access, and the official app installed at `/usr/lib/chatgpt/resources/app.asar`.
+适用范围：使用 `apt`/`dpkg` 的 Debian/Ubuntu 系统、Python 3.10 及以上、管理员权限，以及安装在 `/usr/lib/chatgpt/resources/app.asar` 的官方客户端。
 
-Download the `.deb` and `SHA256SUMS` from [Releases](https://github.com/DiYulin/chatgpt-linux-show-devices/releases), verify the download, then install:
+从[发布页](https://github.com/DiYulin/chatgpt-linux-show-devices/releases)下载 `.deb` 和 `SHA256SUMS`，校验后安装：
 
 ```sh
 sha256sum --check SHA256SUMS
 sudo apt install ./chatgpt-show-other-devices_1.0.1_all.deb
 ```
 
-Completely quit and reopen the desktop app. Open **Settings → Connections** and look for **Control other devices**. Pair devices using the app's normal authorization flow.
+完全退出并重新打开客户端，进入“设置 → 连接”，再按正常流程添加、授权和配对其他设备。
 
-Check the actual patch result after installation:
+检查实际是否启用：
 
 ```sh
 chatgpt-show-other-devices --status
 ```
 
-Look for `"enabled": true`. An unsupported app layout leaves the application unchanged; `last_result` explains why the patch was skipped. The companion package can therefore be installed even when its current app build is unsupported.
+`"enabled": true` 表示补丁已经生效。若新版不兼容，客户端会保持原样，`last_result` 会记录跳过原因；辅助包安装成功不等于一定匹配当前客户端。
 
-## After an app update
+## 更新后的行为
 
-When `apt` or `dpkg` replaces the app archive, a registered file trigger runs the helper. If the known gate-to-UI relationship and integrity layout still match, it reapplies the patch and backs up that version's original archive. Restart the app to load the change.
+系统通过 `apt` 或 `dpkg` 更新客户端时，辅助包的文件触发器会自动运行。只有已确认的开关、界面关联及校验结构仍然匹配时，才会备份并重新应用补丁。更新后重启客户端生效。
 
-If the app changes the gate, file layout, or expression structure, the helper records the reason and leaves the new app untouched. An updated helper may then be needed. Updates made outside `dpkg` do not activate this trigger.
+如果新版改了相关结构，修补程序会保留新版原样并记录原因，可能需要更新本辅助包。直接复制文件等绕过 `dpkg` 的更新方式不会触发自动修补。
 
-Manual recheck:
+手动重新检查：
 
 ```sh
 sudo chatgpt-show-other-devices --ensure
 ```
 
-## Remove and restore
+## 撤销和恢复
 
 ```sh
 sudo apt remove chatgpt-show-other-devices
 ```
 
-Removal attempts to restore the matching original archive. It never replaces a newer, unrelated app build with an old backup. Completely restart the desktop app afterwards.
+卸载时尝试恢复与当前补丁对应的原文件；如果客户端已经被更新成其他内容，不会拿旧备份覆盖新版。完成后重启客户端。
 
-To delete the helper's saved state and backups too:
+删除辅助包自己的状态和备份：
 
 ```sh
 sudo apt purge chatgpt-show-other-devices
 ```
 
-To restore temporarily while keeping the companion installed, use `sudo chatgpt-show-other-devices --restore`. A later app update can enable the UI patch again; remove the companion to disable automatic reapplication.
+如仅需临时恢复，可执行 `sudo chatgpt-show-other-devices --restore`。辅助包仍安装时，后续更新可以再次应用补丁；永久停用应卸载辅助包。
 
-## What changes
+## 实现范围
 
-- One gate-read expression in `remote-connections-settings-*.js` becomes a constant false value. Its inverse then shows the entry.
-- The changed asset's SHA-256 and block hash are updated. Archive sizes and file offsets stay unchanged.
-- The archive is replaced atomically, with recovery metadata saved first.
-- The current original and one previous original are retained under `/var/lib/chatgpt-show-other-devices/backups/`.
+- 仅将连接设置中的一个隐藏开关读取表达式固定为关闭。
+- 更新被改动文件的 SHA-256 与分块校验值，保持文件长度和归档偏移不变。
+- 保存恢复信息后原子替换归档，保留当前版本和上一个版本的原文件备份。
+- 不读取登录令牌、Cookie、聊天、设备密钥或项目文件，不修改 Electron 可执行文件的开关。
 
-The helper does not read login tokens, cookies, chats, device keys, or project files. It does not change authentication, MFA, pairing, workspace rules, or server-side access decisions. No OpenAI application binaries, assets, or archive backups are distributed in this repository or its release package. Electron executable fuses are unchanged.
+备份和状态保存在 `/var/lib/chatgpt-show-other-devices/`。详见[实现说明](docs/implementation.md)和[相关项目](docs/related-projects.md)。
 
-See [implementation notes](docs/implementation.md) for the matching and recovery rules, and [related projects](docs/related-projects.md) for alternatives and scope comparisons.
+## 开发
 
-## Build and test
-
-No Python packages need to be installed.
+无需安装额外 Python 包：
 
 ```sh
 python3 -m unittest discover -s tests -v
@@ -84,10 +82,6 @@ python3 scripts/build_deb.py
 python3 scripts/verify_package.py dist/chatgpt-show-other-devices_1.0.1_all.deb
 ```
 
-The tests generate small synthetic ASAR fixtures; the official application is not required. They cover patching, repeated execution, changed asset names, update reapplication, exact restoration, backup retention, and refusing ambiguous or changed layouts.
+测试使用生成的 ASAR 样例文件，不需要官方客户端。CI 额外验证 Debian 包的安装、触发器调用及卸载。兼容性反馈请见[贡献指南](CONTRIBUTING.md)。
 
-GitHub CI also installs the helper in a clean runner, activates its package trigger, and purges it. See [CONTRIBUTING.md](CONTRIBUTING.md) for reporting compatibility results.
-
-## License
-
-Original project code is licensed under [MIT](LICENSE). ChatGPT, Codex, OpenAI trademarks, and upstream application code and assets remain the property of their respective owners. This project is not affiliated with or endorsed by OpenAI.
+本项目原创代码采用 [MIT](LICENSE) 许可证。与 OpenAI 无关联，也未获其背书。
