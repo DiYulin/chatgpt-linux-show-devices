@@ -35,6 +35,8 @@ chatgpt-show-other-devices --status
 
 Look for `"enabled": true`. An unsupported app layout leaves the application unchanged; `last_result` explains why the patch was skipped. The companion package can therefore be installed even when its current app build is unsupported.
 
+If the entry appears but authorization fails, see [authorization and TPM troubleshooting](docs/authorization-troubleshooting.md). A user-access failure for `/dev/tpmrm0` was observed on the tested build. A phone QR prompt on the authorization website may be passkey verification; it does not make the phone the controlling device.
+
 ## After an app update
 
 When `apt` or `dpkg` replaces the app archive, a registered file trigger runs the helper. If the known gate-to-UI relationship and integrity layout still match, it reapplies the patch and backs up that version's original archive. Restart the app to load the change.
